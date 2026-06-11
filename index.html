@@ -338,6 +338,8 @@
     .badge-win { background: #e8f5e9; color: #1b5e20; }
     .badge-tie { background: #fff8e1; color: #e65100; }
 
+    .result-badge { display: flex; justify-content: flex-end; }
+
     /* ── Footer ── */
     footer {
       text-align: center;
@@ -365,7 +367,7 @@
       .result-date { flex-shrink: 0; }
       .result-player, .result-player-right { flex-shrink: 0; }
       .result-scores { flex: 1; text-align: center; }
-      .result-row > div { display: none; }
+      .result-badge { display: none; }
       .chart-card { padding: 18px 12px 14px; }
     }
   </style>
@@ -575,7 +577,7 @@
           <span class="result-player">${m.player1}</span>
           <span class="result-scores">${sets.join(' · ')}</span>
           <span class="result-player-right">${m.player2}</span>
-          <div style="display:flex;justify-content:flex-end">${badge}</div>
+          <div class="result-badge">${badge}</div>
         </div>`;
     }).join('');
   }
