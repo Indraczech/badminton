@@ -245,6 +245,36 @@
       color: var(--muted);
     }
 
+    .h2h-sets {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      width: 100%;
+      justify-content: center;
+      margin-top: 14px;
+      padding-top: 14px;
+      border-top: 1px solid var(--border);
+    }
+
+    .h2h-sets-num {
+      font-size: 1rem;
+      font-weight: 700;
+      min-width: 20px;
+      text-align: center;
+      color: #d1d5db;
+    }
+
+    .h2h-sets-num.lead  { color: var(--win); }
+    .h2h-sets-num.trail { color: var(--loss); }
+
+    .h2h-sets-lbl {
+      font-size: 0.65rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
     /* ── Chart ── */
     .chart-card {
       padding: 28px 28px 20px;
@@ -319,8 +349,13 @@
 
     @media (max-width: 640px) {
       .standings-grid, .h2h-grid { grid-template-columns: 1fr; }
-      .result-row { grid-template-columns: 70px 1fr 1fr; }
+      .result-row {
+        grid-template-columns: 60px 1fr auto;
+        padding: 10px 14px;
+        gap: 8px;
+      }
       .result-scores, .result-player-right { display: none; }
+      .chart-card { padding: 18px 12px 14px; }
     }
   </style>
 </head>
@@ -468,6 +503,7 @@
     return pairs.map(([a, b]) => {
       const aw = h2h[a][b].wins, bw = h2h[b][a].wins;
       const at = h2h[a][b].ties;
+      const as = h2h[a][b].setsWon, bs = h2h[b][a].setsWon;
       return `
         <div class="card h2h-card">
           <div class="h2h-names">
@@ -488,6 +524,11 @@
               <span class="h2h-wlt-num tie">${at}</span>
               <span class="h2h-wlt-label">T</span>
             </div>
+          </div>
+          <div class="h2h-sets">
+            <span class="h2h-sets-num ${as > bs ? 'lead' : as < bs ? 'trail' : ''}">${as}</span>
+            <span class="h2h-sets-lbl">Sets</span>
+            <span class="h2h-sets-num ${bs > as ? 'lead' : bs < as ? 'trail' : ''}">${bs}</span>
           </div>
         </div>`;
     }).join('');
