@@ -230,7 +230,8 @@
       color: var(--muted);
     }
 
-    .h2h-score.lead { color: var(--text); }
+    .h2h-score.lead { color: var(--accent); }
+    .h2h-score.trail { color: #e0e0e8; }
 
     .h2h-sep {
       font-size: 1.2rem;
@@ -429,7 +430,7 @@
     const h2h = {};
     PLAYERS.forEach(a => {
       h2h[a] = {};
-      PLAYERS.forEach(b => { if (a !== b) h2h[a][b] = { wins: 0, setsWon: 0 }; });
+      PLAYERS.forEach(b => { if (a !== b) h2h[a][b] = { wins: 0, ties: 0, setsWon: 0 }; });
     });
 
     matches.forEach(m => {
@@ -452,6 +453,7 @@
         h2h[p2][p1].setsWon += sw2;
         if (result === p1) h2h[p1][p2].wins++;
         else if (result === p2) h2h[p2][p1].wins++;
+        else if (result === 'Tie') { h2h[p1][p2].ties++; h2h[p2][p1].ties++; }
       }
     });
 
@@ -502,7 +504,9 @@
     const pairs = [['Vojta','Albi'], ['Vojta','Vítek'], ['Albi','Vítek']];
     return pairs.map(([a, b]) => {
       const aw = h2h[a][b].wins, bw = h2h[b][a].wins;
+      const at = h2h[a][b].ties;
       const as = h2h[a][b].setsWon, bs = h2h[b][a].setsWon;
+      const tieLabel = at > 0 ? `<span style="font-size:0.7rem;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--tie)"> · ${at} Tie${at > 1 ? 's' : ''}</span>` : '';
       return `
         <div class="card h2h-card">
           <div class="h2h-names">
@@ -511,11 +515,11 @@
             <span class="h2h-name">${b}</span>
           </div>
           <div class="h2h-row">
-            <span class="h2h-score ${aw > bw ? 'lead' : ''}">${aw}</span>
+            <span class="h2h-score ${aw > bw ? 'lead' : aw < bw ? 'trail' : ''}">${aw}</span>
             <span class="h2h-sep">–</span>
-            <span class="h2h-score ${bw > aw ? 'lead' : ''}">${bw}</span>
+            <span class="h2h-score ${bw > aw ? 'lead' : bw < aw ? 'trail' : ''}">${bw}</span>
           </div>
-          <div class="h2h-sub">matches</div>
+          <div class="h2h-sub">wins${tieLabel}</div>
           <hr class="h2h-divider">
           <div class="h2h-sets-row">
             <span class="h2h-sets-score ${as > bs ? 'lead' : ''}">${as}</span>
