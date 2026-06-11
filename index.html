@@ -212,60 +212,37 @@
       letter-spacing: 0.05em;
     }
 
-    .h2h-stat-row {
-      display: grid;
-      grid-template-columns: 1fr auto 1fr;
-      align-items: center;
-      width: 100%;
-      gap: 8px;
-    }
-
-    .h2h-val, .h2h-val-sm {
-      font-size: 1.8rem;
-      font-weight: 800;
-      letter-spacing: -0.03em;
-      color: #d1d5db;
-    }
-
-    .h2h-val:first-child,
-    .h2h-val-sm:first-child { text-align: right; }
-
-    .h2h-val:last-child,
-    .h2h-val-sm:last-child  { text-align: left; }
-
-    .h2h-val.lead, .h2h-val-sm.lead   { color: var(--win); }
-    .h2h-val.trail, .h2h-val-sm.trail { color: var(--loss); }
-
-    .h2h-row-label {
-      font-size: 0.68rem;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      color: var(--muted);
-      text-align: center;
-      white-space: nowrap;
-    }
-
-    .h2h-ties {
+    .h2h-wlt {
       display: flex;
+      gap: 24px;
       justify-content: center;
-      margin: 8px 0 6px;
+      padding-top: 4px;
     }
 
-    .h2h-tie-chip {
-      font-size: 0.7rem;
+    .h2h-wlt-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .h2h-wlt-num {
+      font-size: 2.2rem;
+      font-weight: 800;
+      letter-spacing: -0.04em;
+      line-height: 1;
+    }
+
+    .h2h-wlt-num.win  { color: var(--win); }
+    .h2h-wlt-num.loss { color: var(--loss); }
+    .h2h-wlt-num.tie  { color: var(--tie); }
+
+    .h2h-wlt-label {
+      font-size: 0.65rem;
       font-weight: 700;
-      background: #fff8e1;
-      color: #b45309;
-      padding: 3px 10px;
-      border-radius: 20px;
-    }
-
-    .h2h-divider {
-      width: 100%;
-      border: none;
-      border-top: 1px solid var(--border);
-      margin: 12px 0;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted);
     }
 
     /* ── Chart ── */
@@ -491,10 +468,6 @@
     return pairs.map(([a, b]) => {
       const aw = h2h[a][b].wins, bw = h2h[b][a].wins;
       const at = h2h[a][b].ties;
-      const as = h2h[a][b].setsWon, bs = h2h[b][a].setsWon;
-      const tiesHtml = at > 0
-        ? `<div class="h2h-ties"><span class="h2h-tie-chip">${at} ${at === 1 ? 'Tie' : 'Ties'}</span></div>`
-        : '';
       return `
         <div class="card h2h-card">
           <div class="h2h-names">
@@ -502,17 +475,19 @@
             <span class="h2h-vs">vs</span>
             <span class="h2h-name">${b}</span>
           </div>
-          <div class="h2h-stat-row">
-            <span class="h2h-val ${aw > bw ? 'lead' : aw < bw ? 'trail' : ''}">${aw}</span>
-            <span class="h2h-row-label">Wins</span>
-            <span class="h2h-val ${bw > aw ? 'lead' : bw < aw ? 'trail' : ''}">${bw}</span>
-          </div>
-          ${tiesHtml}
-          <hr class="h2h-divider">
-          <div class="h2h-stat-row">
-            <span class="h2h-val-sm ${as > bs ? 'lead' : as < bs ? 'trail' : ''}">${as}</span>
-            <span class="h2h-row-label">Sets</span>
-            <span class="h2h-val-sm ${bs > as ? 'lead' : bs < as ? 'trail' : ''}">${bs}</span>
+          <div class="h2h-wlt">
+            <div class="h2h-wlt-item">
+              <span class="h2h-wlt-num win">${aw}</span>
+              <span class="h2h-wlt-label">W</span>
+            </div>
+            <div class="h2h-wlt-item">
+              <span class="h2h-wlt-num loss">${bw}</span>
+              <span class="h2h-wlt-label">L</span>
+            </div>
+            <div class="h2h-wlt-item">
+              <span class="h2h-wlt-num tie">${at}</span>
+              <span class="h2h-wlt-label">T</span>
+            </div>
           </div>
         </div>`;
     }).join('');
