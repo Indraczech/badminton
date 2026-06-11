@@ -197,7 +197,7 @@
       display: flex;
       align-items: center;
       gap: 10px;
-      margin-bottom: 18px;
+      margin-bottom: 20px;
     }
 
     .h2h-name {
@@ -212,72 +212,65 @@
       letter-spacing: 0.05em;
     }
 
-    .h2h-row {
-      display: flex;
+    .h2h-stat-row {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
       align-items: center;
-      gap: 10px;
       width: 100%;
-      justify-content: center;
-      margin-bottom: 4px;
+      gap: 8px;
     }
 
-    .h2h-score {
+    .h2h-val {
       font-size: 2.2rem;
       font-weight: 800;
       letter-spacing: -0.04em;
-      min-width: 44px;
-      text-align: center;
-      color: var(--muted);
+      color: #d1d5db;
     }
 
-    .h2h-score.lead { color: var(--accent); }
-    .h2h-score.trail { color: #e0e0e8; }
+    .h2h-val:first-child { text-align: right; }
+    .h2h-val:last-child  { text-align: left; }
+    .h2h-val.lead  { color: var(--text); }
 
-    .h2h-sep {
-      font-size: 1.2rem;
-      color: var(--border);
-      font-weight: 300;
+    .h2h-val-sm {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: #d1d5db;
     }
 
-    .h2h-sub {
-      font-size: 0.7rem;
+    .h2h-val-sm:first-child { text-align: right; }
+    .h2h-val-sm:last-child  { text-align: left; }
+    .h2h-val-sm.lead  { color: var(--text); }
+
+    .h2h-row-label {
+      font-size: 0.68rem;
       font-weight: 600;
-      letter-spacing: 0.08em;
       text-transform: uppercase;
+      letter-spacing: 0.08em;
       color: var(--muted);
-      margin-bottom: 14px;
+      text-align: center;
+      white-space: nowrap;
+    }
+
+    .h2h-ties {
+      display: flex;
+      justify-content: center;
+      margin: 8px 0 6px;
+    }
+
+    .h2h-tie-chip {
+      font-size: 0.7rem;
+      font-weight: 700;
+      background: #fff8e1;
+      color: #b45309;
+      padding: 3px 10px;
+      border-radius: 20px;
     }
 
     .h2h-divider {
       width: 100%;
       border: none;
       border-top: 1px solid var(--border);
-      margin: 8px 0 12px;
-    }
-
-    .h2h-sets-row {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      width: 100%;
-      justify-content: center;
-    }
-
-    .h2h-sets-score {
-      font-size: 1.1rem;
-      font-weight: 700;
-      min-width: 44px;
-      text-align: center;
-      color: var(--muted);
-    }
-
-    .h2h-sets-score.lead { color: var(--text); }
-    .h2h-sets-label {
-      font-size: 0.7rem;
-      color: var(--muted);
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
+      margin: 12px 0;
     }
 
     /* ── Chart ── */
@@ -308,7 +301,6 @@
       font-size: 0.9rem;
     }
 
-    .result-player.w { color: var(--accent); }
 
     .result-scores {
       text-align: center;
@@ -324,7 +316,6 @@
       text-align: right;
     }
 
-    .result-player-right.w { color: var(--accent); }
 
     .badge {
       font-size: 0.7rem;
@@ -506,7 +497,9 @@
       const aw = h2h[a][b].wins, bw = h2h[b][a].wins;
       const at = h2h[a][b].ties;
       const as = h2h[a][b].setsWon, bs = h2h[b][a].setsWon;
-      const tieLabel = at > 0 ? `<span style="font-size:0.7rem;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--tie)"> · ${at} Tie${at > 1 ? 's' : ''}</span>` : '';
+      const tiesHtml = at > 0
+        ? `<div class="h2h-ties"><span class="h2h-tie-chip">${at} ${at === 1 ? 'Tie' : 'Ties'}</span></div>`
+        : '';
       return `
         <div class="card h2h-card">
           <div class="h2h-names">
@@ -514,17 +507,17 @@
             <span class="h2h-vs">vs</span>
             <span class="h2h-name">${b}</span>
           </div>
-          <div class="h2h-row">
-            <span class="h2h-score ${aw > bw ? 'lead' : aw < bw ? 'trail' : ''}">${aw}</span>
-            <span class="h2h-sep">–</span>
-            <span class="h2h-score ${bw > aw ? 'lead' : bw < aw ? 'trail' : ''}">${bw}</span>
+          <div class="h2h-stat-row">
+            <span class="h2h-val ${aw > bw ? 'lead' : ''}">${aw}</span>
+            <span class="h2h-row-label">Wins</span>
+            <span class="h2h-val ${bw > aw ? 'lead' : ''}">${bw}</span>
           </div>
-          <div class="h2h-sub">wins${tieLabel}</div>
+          ${tiesHtml}
           <hr class="h2h-divider">
-          <div class="h2h-sets-row">
-            <span class="h2h-sets-score ${as > bs ? 'lead' : ''}">${as}</span>
-            <span class="h2h-sets-label">sets</span>
-            <span class="h2h-sets-score ${bs > as ? 'lead' : ''}">${bs}</span>
+          <div class="h2h-stat-row">
+            <span class="h2h-val-sm ${as > bs ? 'lead' : ''}">${as}</span>
+            <span class="h2h-row-label">Sets</span>
+            <span class="h2h-val-sm ${bs > as ? 'lead' : ''}">${bs}</span>
           </div>
         </div>`;
     }).join('');
@@ -555,9 +548,9 @@
       return `
         <div class="result-row">
           <span class="result-date">${date}</span>
-          <span class="result-player ${p1wins ? 'w' : ''}">${m.player1}</span>
+          <span class="result-player">${m.player1}</span>
           <span class="result-scores">${sets.join(' · ')}</span>
-          <span class="result-player-right ${p2wins ? 'w' : ''}">${m.player2}</span>
+          <span class="result-player-right">${m.player2}</span>
           <div style="display:flex;justify-content:flex-end">${badge}</div>
         </div>`;
     }).join('');
@@ -575,21 +568,21 @@
           {
             label: 'Wins',
             data: ranked.map(p => stats[p].wins),
-            backgroundColor: '#4f46e5',
+            backgroundColor: '#86efac',
             borderRadius: 6,
             borderSkipped: false,
           },
           {
             label: 'Losses',
             data: ranked.map(p => stats[p].losses),
-            backgroundColor: '#e8e8ed',
+            backgroundColor: '#fca5a5',
             borderRadius: 6,
             borderSkipped: false,
           },
           {
             label: 'Ties',
             data: ranked.map(p => stats[p].ties),
-            backgroundColor: '#ff9f0a',
+            backgroundColor: '#fde68a',
             borderRadius: 6,
             borderSkipped: false,
           }
