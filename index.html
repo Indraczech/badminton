@@ -279,6 +279,13 @@
     .chart-card {
       padding: 28px 28px 20px;
     }
+    .chart-wrap {
+      position: relative;
+      height: 260px;
+    }
+    @media (max-width: 640px) {
+      .chart-wrap { height: 320px; }
+    }
 
     /* ── Recent results ── */
     .result-row {
@@ -350,11 +357,14 @@
     @media (max-width: 640px) {
       .standings-grid, .h2h-grid { grid-template-columns: 1fr; }
       .result-row {
-        grid-template-columns: 60px 1fr auto;
-        padding: 10px 14px;
+        display: flex;
+        align-items: center;
         gap: 8px;
+        padding: 10px 14px;
       }
-      .result-scores, .result-player-right { display: none; }
+      .result-date { flex-shrink: 0; }
+      .result-player { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+      .result-player-right { display: none; }
       .chart-card { padding: 18px 12px 14px; }
     }
   </style>
@@ -386,7 +396,9 @@
   <section>
     <div class="section-title">Wins this season</div>
     <div class="card chart-card">
-      <canvas id="chart" height="90"></canvas>
+      <div class="chart-wrap">
+        <canvas id="chart"></canvas>
+      </div>
     </div>
   </section>
 
@@ -601,6 +613,7 @@
       },
       options: {
         responsive: true,
+        maintainAspectRatio: false,
         plugins: {
           legend: {
             position: 'bottom',
