@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Badminton</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+  <style>
+    :root {
+      --bg: #f5f5f7;
+      --surface: #ffffff;
+      --border: #e8e8ed;
+      --text: #1d1d1f;
+      --muted: #6e6e73;
+      --accent: #4f46e5;
+      --win: #34c759;
+      --loss: #ff3b30;
+      --tie: #ff9f0a;
+      --shadow-sm: 0 1px 2px rgba(0,0,0,0.06), 0 2px 8px rgba(0,0,0,0.06);
+      --shadow-md: 0 2px 4px rgba(0,0,0,0.06), 0 8px 24px rgba(0,0,0,0.08);
+      --radius: 14px;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── Header ── */
+    header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 48px 24px 40px;
+      text-align: center;
+    }
+
+    .header-eyebrow {
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 8px;
+    }
+
+    header h1 {
+      font-size: clamp(2.4rem, 5vw, 3.6rem);
+      font-weight: 800;
+      letter-spacing: -0.04em;
+      line-height: 1;
+      color: var(--text);
+    }
+
+    .header-meta {
+      margin-top: 12px;
+      font-size: 0.9rem;
+      color: var(--muted);
+    }
+
+    /* ── Layout ── */
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 40px 20px 80px;
+      display: flex;
+      flex-direction: column;
+      gap: 48px;
+    }
+
+    section { display: flex; flex-direction: column; gap: 16px; }
+
+    .section-title {
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    /* ── Card base ── */
+    .card {
+      background: var(--surface);
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow-sm);
+    }
+
+    /* ── Standings ── */
+    .standings-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+    }
+
+    .player-card {
+      padding: 28px 20px 24px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0;
+      position: relative;
+      overflow: hidden;
+      transition: box-shadow 0.2s;
+    }
+
+    .player-card:hover {
+      box-shadow: var(--shadow-md);
+    }
+
+    .player-card.gold { border-top: 3px solid #f5a623; }
+    .player-card.silver { border-top: 3px solid #b0b8c1; }
+    .player-card.bronze { border-top: 3px solid #c9845a; }
+
+    .player-medal {
+      font-size: 1.4rem;
+      margin-bottom: 6px;
+    }
+
+    .player-name {
+      font-size: 1.3rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin-bottom: 20px;
+    }
+
+    .win-rate {
+      font-size: 3rem;
+      font-weight: 800;
+      letter-spacing: -0.04em;
+      color: var(--accent);
+      line-height: 1;
+    }
+
+    .win-rate-label {
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 20px;
+      margin-top: 3px;
+    }
+
+    .wlt {
+      display: flex;
+      gap: 16px;
+      width: 100%;
+      justify-content: center;
+      padding-top: 16px;
+      border-top: 1px solid var(--border);
+    }
+
+    .wlt-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+    }
+
+    .wlt-num {
+      font-size: 1.1rem;
+      font-weight: 700;
+    }
+
+    .wlt-label {
+      font-size: 0.65rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .wlt-w .wlt-num { color: var(--win); }
+    .wlt-l .wlt-num { color: var(--loss); }
+    .wlt-t .wlt-num { color: var(--tie); }
+
+    /* ── H2H ── */
+    .h2h-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+    }
+
+    .h2h-card {
+      padding: 24px 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0;
+    }
+
+    .h2h-names {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 18px;
+    }
+
+    .h2h-name {
+      font-size: 0.95rem;
+      font-weight: 700;
+    }
+
+    .h2h-vs {
+      font-size: 0.7rem;
+      font-weight: 600;
+      color: var(--muted);
+      letter-spacing: 0.05em;
+    }
+
+    .h2h-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      width: 100%;
+      justify-content: center;
+      margin-bottom: 4px;
+    }
+
+    .h2h-score {
+      font-size: 2.2rem;
+      font-weight: 800;
+      letter-spacing: -0.04em;
+      min-width: 44px;
+      text-align: center;
+      color: var(--muted);
+    }
+
+    .h2h-score.lead { color: var(--text); }
+
+    .h2h-sep {
+      font-size: 1.2rem;
+      color: var(--border);
+      font-weight: 300;
+    }
+
+    .h2h-sub {
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 14px;
+    }
+
+    .h2h-divider {
+      width: 100%;
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 8px 0 12px;
+    }
+
+    .h2h-sets-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      width: 100%;
+      justify-content: center;
+    }
+
+    .h2h-sets-score {
+      font-size: 1.1rem;
+      font-weight: 700;
+      min-width: 44px;
+      text-align: center;
+      color: var(--muted);
+    }
+
+    .h2h-sets-score.lead { color: var(--text); }
+    .h2h-sets-label {
+      font-size: 0.7rem;
+      color: var(--muted);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    /* ── Chart ── */
+    .chart-card {
+      padding: 28px 28px 20px;
+    }
+
+    /* ── Recent results ── */
+    .result-row {
+      display: grid;
+      grid-template-columns: 80px 1fr auto 1fr 110px;
+      align-items: center;
+      gap: 8px;
+      padding: 14px 20px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .result-row:last-child { border-bottom: none; }
+
+    .result-date {
+      font-size: 0.78rem;
+      color: var(--muted);
+      font-weight: 500;
+    }
+
+    .result-player {
+      font-weight: 600;
+      font-size: 0.9rem;
+    }
+
+    .result-player.w { color: var(--accent); }
+
+    .result-scores {
+      text-align: center;
+      font-size: 0.78rem;
+      color: var(--muted);
+      font-weight: 500;
+      white-space: nowrap;
+    }
+
+    .result-player-right {
+      font-weight: 600;
+      font-size: 0.9rem;
+      text-align: right;
+    }
+
+    .result-player-right.w { color: var(--accent); }
+
+    .badge {
+      font-size: 0.7rem;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 20px;
+      text-align: center;
+      white-space: nowrap;
+    }
+
+    .badge-win { background: #e8f5e9; color: #1b5e20; }
+    .badge-tie { background: #fff8e1; color: #e65100; }
+
+    /* ── Footer ── */
+    footer {
+      text-align: center;
+      font-size: 0.75rem;
+      color: var(--muted);
+      padding: 0 20px 40px;
+    }
+
+    /* ── Loading / error ── */
+    .placeholder {
+      text-align: center;
+      padding: 48px;
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    @media (max-width: 640px) {
+      .standings-grid, .h2h-grid { grid-template-columns: 1fr; }
+      .result-row { grid-template-columns: 70px 1fr 1fr; }
+      .result-scores, .result-player-right { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="header-eyebrow">Season 2026</div>
+  <h1>Badminton</h1>
+  <p class="header-meta" id="header-meta">Loading...</p>
+</header>
+
+<div class="container">
+
+  <section>
+    <div class="section-title">Standings</div>
+    <div class="standings-grid" id="standings">
+      <div class="card placeholder">Loading...</div>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-title">Head to Head</div>
+    <div class="h2h-grid" id="h2h">
+      <div class="card placeholder">Loading...</div>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-title">Wins this season</div>
+    <div class="card chart-card">
+      <canvas id="chart" height="90"></canvas>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-title">Recent Results</div>
+    <div class="card" id="results">
+      <div class="placeholder">Loading...</div>
+    </div>
+  </section>
+
+</div>
+
+<footer id="footer"></footer>
+
+<script>
+  // ── CONFIG — paste your Apps Script web app URL here ──
+  const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyNr-1TSWNseq-s_5qNOKRcyQWAZQ4haLBkoRgodhWSZQQ-O793LqyyEM4n4UU0g9i5/exec';
+  const PLAYERS = ['Vojta', 'Albi', 'Vítek'];
+  const MEDALS = ['gold', 'silver', 'bronze'];
+  const TROPHIES = ['🥇', '🥈', '🥉'];
+
+  // ── Fetch data ──
+  async function fetchMatches() {
+    try {
+      const res = await fetch(`${SCRIPT_URL}?action=data`);
+      const json = await res.json();
+      return json.matches || [];
+    } catch {
+      return null;
+    }
+  }
+
+  // ── Compute stats ──
+  function computeStats(matches) {
+    const stats = Object.fromEntries(PLAYERS.map(p => [p, {
+      played: 0, wins: 0, losses: 0, ties: 0, setsWon: 0, setsLost: 0
+    }]));
+
+    const h2h = {};
+    PLAYERS.forEach(a => {
+      h2h[a] = {};
+      PLAYERS.forEach(b => { if (a !== b) h2h[a][b] = { wins: 0, setsWon: 0 }; });
+    });
+
+    matches.forEach(m => {
+      const { player1: p1, player2: p2, result } = m;
+      if (!stats[p1] || !stats[p2]) return;
+
+      const sw1 = Number(m.sets_won_p1) || 0;
+      const sw2 = Number(m.sets_won_p2) || 0;
+
+      stats[p1].played++;  stats[p2].played++;
+      stats[p1].setsWon  += sw1; stats[p1].setsLost += sw2;
+      stats[p2].setsWon  += sw2; stats[p2].setsLost += sw1;
+
+      if (result === 'Tie')    { stats[p1].ties++; stats[p2].ties++; }
+      else if (result === p1)  { stats[p1].wins++; stats[p2].losses++; }
+      else if (result === p2)  { stats[p2].wins++; stats[p1].losses++; }
+
+      if (h2h[p1]?.[p2]) {
+        h2h[p1][p2].setsWon += sw1;
+        h2h[p2][p1].setsWon += sw2;
+        if (result === p1) h2h[p1][p2].wins++;
+        else if (result === p2) h2h[p2][p1].wins++;
+      }
+    });
+
+    return { stats, h2h };
+  }
+
+  function rankPlayers(stats) {
+    return [...PLAYERS].sort((a, b) => {
+      if (stats[b].wins !== stats[a].wins) return stats[b].wins - stats[a].wins;
+      const ra = stats[a].wins / (stats[a].played || 1);
+      const rb = stats[b].wins / (stats[b].played || 1);
+      return rb - ra;
+    });
+  }
+
+  // ── Render standings ──
+  function renderStandings(stats) {
+    const ranked = rankPlayers(stats);
+    return ranked.map((p, i) => {
+      const s = stats[p];
+      const pct = s.played ? Math.round(s.wins / s.played * 100) : 0;
+      return `
+        <div class="card player-card ${MEDALS[i]}">
+          <div class="player-medal">${TROPHIES[i]}</div>
+          <div class="player-name">${p}</div>
+          <div class="win-rate">${pct}%</div>
+          <div class="win-rate-label">Win rate</div>
+          <div class="wlt">
+            <div class="wlt-item wlt-w">
+              <span class="wlt-num">${s.wins}</span>
+              <span class="wlt-label">W</span>
+            </div>
+            <div class="wlt-item wlt-l">
+              <span class="wlt-num">${s.losses}</span>
+              <span class="wlt-label">L</span>
+            </div>
+            <div class="wlt-item wlt-t">
+              <span class="wlt-num">${s.ties}</span>
+              <span class="wlt-label">T</span>
+            </div>
+          </div>
+        </div>`;
+    }).join('');
+  }
+
+  // ── Render H2H ──
+  function renderH2H(h2h) {
+    const pairs = [['Vojta','Albi'], ['Vojta','Vítek'], ['Albi','Vítek']];
+    return pairs.map(([a, b]) => {
+      const aw = h2h[a][b].wins, bw = h2h[b][a].wins;
+      const as = h2h[a][b].setsWon, bs = h2h[b][a].setsWon;
+      return `
+        <div class="card h2h-card">
+          <div class="h2h-names">
+            <span class="h2h-name">${a}</span>
+            <span class="h2h-vs">vs</span>
+            <span class="h2h-name">${b}</span>
+          </div>
+          <div class="h2h-row">
+            <span class="h2h-score ${aw > bw ? 'lead' : ''}">${aw}</span>
+            <span class="h2h-sep">–</span>
+            <span class="h2h-score ${bw > aw ? 'lead' : ''}">${bw}</span>
+          </div>
+          <div class="h2h-sub">matches</div>
+          <hr class="h2h-divider">
+          <div class="h2h-sets-row">
+            <span class="h2h-sets-score ${as > bs ? 'lead' : ''}">${as}</span>
+            <span class="h2h-sets-label">sets</span>
+            <span class="h2h-sets-score ${bs > as ? 'lead' : ''}">${bs}</span>
+          </div>
+        </div>`;
+    }).join('');
+  }
+
+  // ── Render results ──
+  function renderResults(matches) {
+    const recent = [...matches]
+      .sort((a, b) => new Date(b.date) - new Date(a.date))
+      .slice(0, 10);
+
+    if (!recent.length) return '<div class="placeholder">No matches recorded yet.</div>';
+
+    return recent.map(m => {
+      const isTie = m.result === 'Tie';
+      const p1wins = m.result === m.player1;
+      const p2wins = m.result === m.player2;
+      const sets = [];
+      for (let i = 1; i <= 5; i++) {
+        const a = m[`s${i}_p1`], b = m[`s${i}_p2`];
+        if (a !== '' && a !== undefined && a !== null) sets.push(`${a}–${b}`);
+      }
+      const date = new Date(m.date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
+      const badge = isTie
+        ? `<span class="badge badge-tie">Tie</span>`
+        : `<span class="badge badge-win">${m.result}</span>`;
+
+      return `
+        <div class="result-row">
+          <span class="result-date">${date}</span>
+          <span class="result-player ${p1wins ? 'w' : ''}">${m.player1}</span>
+          <span class="result-scores">${sets.join(' · ')}</span>
+          <span class="result-player-right ${p2wins ? 'w' : ''}">${m.player2}</span>
+          <div style="display:flex;justify-content:flex-end">${badge}</div>
+        </div>`;
+    }).join('');
+  }
+
+  // ── Render chart ──
+  function renderChart(stats) {
+    const ranked = rankPlayers(stats);
+    const ctx = document.getElementById('chart').getContext('2d');
+    new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: ranked,
+        datasets: [
+          {
+            label: 'Wins',
+            data: ranked.map(p => stats[p].wins),
+            backgroundColor: '#4f46e5',
+            borderRadius: 6,
+            borderSkipped: false,
+          },
+          {
+            label: 'Losses',
+            data: ranked.map(p => stats[p].losses),
+            backgroundColor: '#e8e8ed',
+            borderRadius: 6,
+            borderSkipped: false,
+          },
+          {
+            label: 'Ties',
+            data: ranked.map(p => stats[p].ties),
+            backgroundColor: '#ff9f0a',
+            borderRadius: 6,
+            borderSkipped: false,
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: {
+            position: 'bottom',
+            labels: { usePointStyle: true, pointStyle: 'circle', padding: 20, font: { size: 12 } }
+          }
+        },
+        scales: {
+          x: { grid: { display: false }, border: { display: false } },
+          y: {
+            beginAtZero: true,
+            ticks: { stepSize: 1, precision: 0 },
+            grid: { color: '#f0f0f5' },
+            border: { display: false }
+          }
+        }
+      }
+    });
+  }
+
+  // ── Init ──
+  async function init() {
+    const matches = await fetchMatches();
+
+    if (!matches) {
+      document.getElementById('header-meta').textContent = 'Could not load data.';
+      return;
+    }
+
+    const { stats, h2h } = computeStats(matches);
+
+    document.getElementById('standings').innerHTML = renderStandings(stats);
+    document.getElementById('h2h').innerHTML = renderH2H(h2h);
+    document.getElementById('results').innerHTML = renderResults(matches);
+    renderChart(stats);
+
+    const n = matches.length;
+    document.getElementById('header-meta').textContent =
+      `${n} match${n !== 1 ? 'es' : ''} played`;
+    document.getElementById('footer').textContent =
+      `Updated ${new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}`;
+  }
+
+  init();
+</script>
+</body>
+</html>
