@@ -549,9 +549,15 @@
             </div>
           </div>
           <div class="h2h-sets">
-            <span class="h2h-sets-num ${as > bs ? 'lead' : as < bs ? 'trail' : ''}">${as}</span>
+            <div class="h2h-wlt-item">
+              <span class="h2h-sets-num ${as > bs ? 'lead' : as < bs ? 'trail' : ''}">${as}</span>
+              <span class="h2h-wlt-label">${a}</span>
+            </div>
             <span class="h2h-sets-lbl">Sets</span>
-            <span class="h2h-sets-num ${bs > as ? 'lead' : bs < as ? 'trail' : ''}">${bs}</span>
+            <div class="h2h-wlt-item">
+              <span class="h2h-sets-num ${bs > as ? 'lead' : bs < as ? 'trail' : ''}">${bs}</span>
+              <span class="h2h-wlt-label">${b}</span>
+            </div>
           </div>
         </div>`;
     }).join('');
