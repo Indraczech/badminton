@@ -245,6 +245,16 @@
       color: var(--muted);
     }
 
+    .h2h-row-label {
+      font-size: 0.65rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted);
+      text-align: center;
+      margin-bottom: 8px;
+    }
+
     .h2h-sets {
       display: flex;
       align-items: center;
@@ -523,6 +533,7 @@
       const bWinClass = bw > aw ? 'win' : bw < aw ? 'loss' : '';
       return `
         <div class="card h2h-card">
+          <div class="h2h-row-label">Matches</div>
           <div class="h2h-wlt">
             <div class="h2h-wlt-item">
               <span class="h2h-wlt-num ${aWinClass}">${aw}</span>
