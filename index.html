@@ -186,58 +186,37 @@
     }
 
     .h2h-card {
-      padding: 24px 20px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 0;
+      padding: 22px 16px;
+      text-align: center;
     }
 
-    .h2h-names {
+    .h2h-score {
       display: flex;
       align-items: center;
-      gap: 10px;
-      margin-bottom: 20px;
-    }
-
-    .h2h-name {
-      font-size: 0.95rem;
-      font-weight: 700;
-    }
-
-    .h2h-vs {
-      font-size: 0.7rem;
-      font-weight: 600;
-      color: var(--muted);
-      letter-spacing: 0.05em;
-    }
-
-    .h2h-wlt {
-      display: flex;
-      gap: 24px;
       justify-content: center;
-      padding-top: 4px;
+      gap: 14px;
+      margin-bottom: 10px;
     }
 
-    .h2h-wlt-item {
+    .h2h-score-side {
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 4px;
+      gap: 5px;
     }
 
-    .h2h-wlt-num {
-      font-size: 2.2rem;
+    .h2h-score-num {
+      font-size: 3rem;
       font-weight: 800;
       letter-spacing: -0.04em;
       line-height: 1;
+      color: var(--muted);
     }
 
-    .h2h-wlt-num.win  { color: var(--win); }
-    .h2h-wlt-num.loss { color: var(--loss); }
-    .h2h-wlt-num.tie  { color: var(--tie); }
+    .h2h-score-num.win  { color: var(--win); }
+    .h2h-score-num.loss { color: var(--loss); }
 
-    .h2h-wlt-label {
+    .h2h-score-name {
       font-size: 0.65rem;
       font-weight: 700;
       letter-spacing: 0.1em;
@@ -245,44 +224,26 @@
       color: var(--muted);
     }
 
-    .h2h-row-label {
-      font-size: 0.65rem;
-      font-weight: 700;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
+    .h2h-score-dash {
+      font-size: 1.4rem;
       color: var(--muted);
-      text-align: center;
-      margin-bottom: 8px;
+      padding-bottom: 22px;
     }
 
-    .h2h-sets {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      width: 100%;
-      justify-content: center;
-      margin-top: 14px;
-      padding-top: 14px;
+    .h2h-tie {
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--tie);
+      margin-bottom: 12px;
+    }
+
+    .h2h-tie.no-tie { color: var(--muted); font-weight: 400; }
+
+    .h2h-sets-row {
+      font-size: 0.78rem;
+      color: var(--muted);
+      padding-top: 10px;
       border-top: 1px solid var(--border);
-    }
-
-    .h2h-sets-num {
-      font-size: 1rem;
-      font-weight: 700;
-      min-width: 20px;
-      text-align: center;
-      color: #d1d5db;
-    }
-
-    .h2h-sets-num.lead  { color: var(--win); }
-    .h2h-sets-num.trail { color: var(--loss); }
-
-    .h2h-sets-lbl {
-      font-size: 0.65rem;
-      font-weight: 700;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      color: var(--muted);
     }
 
     /* ── Chart ── */
@@ -531,34 +492,22 @@
       const as = h2h[a][b].setsWon, bs = h2h[b][a].setsWon;
       const aWinClass = aw > bw ? 'win' : aw < bw ? 'loss' : '';
       const bWinClass = bw > aw ? 'win' : bw < aw ? 'loss' : '';
+      const tieText = at === 0 ? 'no ties' : at === 1 ? '1 tie' : `${at} ties`;
       return `
         <div class="card h2h-card">
-          <div class="h2h-row-label">Matches</div>
-          <div class="h2h-wlt">
-            <div class="h2h-wlt-item">
-              <span class="h2h-wlt-num ${aWinClass}">${aw}</span>
-              <span class="h2h-wlt-label">${a}</span>
+          <div class="h2h-score">
+            <div class="h2h-score-side">
+              <span class="h2h-score-num ${aWinClass}">${aw}</span>
+              <span class="h2h-score-name">${a}</span>
             </div>
-            <div class="h2h-wlt-item">
-              <span class="h2h-wlt-num tie">${at}</span>
-              <span class="h2h-wlt-label">Ties</span>
-            </div>
-            <div class="h2h-wlt-item">
-              <span class="h2h-wlt-num ${bWinClass}">${bw}</span>
-              <span class="h2h-wlt-label">${b}</span>
+            <span class="h2h-score-dash">–</span>
+            <div class="h2h-score-side">
+              <span class="h2h-score-num ${bWinClass}">${bw}</span>
+              <span class="h2h-score-name">${b}</span>
             </div>
           </div>
-          <div class="h2h-sets">
-            <div class="h2h-wlt-item">
-              <span class="h2h-sets-num ${as > bs ? 'lead' : as < bs ? 'trail' : ''}">${as}</span>
-              <span class="h2h-wlt-label">${a}</span>
-            </div>
-            <span class="h2h-sets-lbl">Sets</span>
-            <div class="h2h-wlt-item">
-              <span class="h2h-sets-num ${bs > as ? 'lead' : bs < as ? 'trail' : ''}">${bs}</span>
-              <span class="h2h-wlt-label">${b}</span>
-            </div>
-          </div>
+          <div class="h2h-tie${at === 0 ? ' no-tie' : ''}">${tieText}</div>
+          <div class="h2h-sets-row">Sets ${as} – ${bs}</div>
         </div>`;
     }).join('');
   }
