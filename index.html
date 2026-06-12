@@ -3,398 +3,663 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Badminton</title>
+  <title>Badminton — Season 2026</title>
+
+  <!-- Set theme before paint to avoid flash -->
+  <script>
+    (function () {
+      try {
+        var dark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
+      } catch (e) {
+        document.documentElement.setAttribute('data-theme', 'light');
+      }
+    })();
+  </script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Anton&family=Hanken+Grotesk:ital,wght@0,400;0,500;0,600;0,700;0,800;1,500&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+
   <style>
+    /* ─────────────────────────  THEME  ───────────────────────── */
     :root {
-      --bg: #f5f5f7;
+      color-scheme: light dark;
+
+      /* Light (default) */
+      --bg: #eef0ea;
       --surface: #ffffff;
-      --border: #e8e8ed;
-      --text: #1d1d1f;
-      --muted: #6e6e73;
-      --accent: #4f46e5;
-      --win: #34c759;
-      --loss: #ff3b30;
-      --tie: #ff9f0a;
-      --shadow-sm: 0 1px 2px rgba(0,0,0,0.06), 0 2px 8px rgba(0,0,0,0.06);
-      --shadow-md: 0 2px 4px rgba(0,0,0,0.06), 0 8px 24px rgba(0,0,0,0.08);
-      --radius: 14px;
+      --surface-2: #f7f8f4;
+      --border: #e3e5dd;
+      --border-strong: #d3d6cb;
+      --text: #14161b;
+      --muted: #676c75;
+      --faint: #a4a8af;
+      --accent: #648f00;
+      --accent-2: #648f00;
+      --accent-text: #648f00;
+      --accent-ink: #f4fbe8;
+      --win: #648f00;
+      --loss: #d61f44;
+      --tie: #c2780a;
+      --glow: rgba(150, 210, 12, 0.20);
+      --gold: #c8941f;
+      --silver: #8a93a0;
+      --bronze: #b85a22;
+      --grid: rgba(20, 22, 27, 0.07);
+      --shadow: 0 1px 2px rgba(20,22,27,.05), 0 10px 34px rgba(20,22,27,.07);
+      --shadow-glow: 0 0 0 1px rgba(180,224,0,.35), 0 14px 40px rgba(154,196,0,.18);
+      --radius: 18px;
+      --radius-sm: 11px;
+      --ff-display: 'Anton', 'Hanken Grotesk', sans-serif;
+      --ff-body: 'Hanken Grotesk', -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+
+    :root[data-theme="dark"] {
+      --bg: #0a0b0d;
+      --surface: #131519;
+      --surface-2: #181b20;
+      --border: #24272e;
+      --border-strong: #33373f;
+      --text: #f3f5f7;
+      --muted: #8b919c;
+      --faint: #565b66;
+      --accent: #ccff33;
+      --accent-2: #ccff33;
+      --accent-text: #ccff33;
+      --accent-ink: #0a0b0d;
+      --win: #ccff33;
+      --loss: #ff2e57;
+      --tie: #ffaa00;
+      --glow: rgba(204, 255, 51, 0.20);
+      --gold: #ffd23f;
+      --silver: #c4ccd4;
+      --bronze: #e0742a;
+      --grid: rgba(255, 255, 255, 0.06);
+      --shadow: 0 1px 2px rgba(0,0,0,.4), 0 14px 40px rgba(0,0,0,.45);
+      --shadow-glow: 0 0 0 1px rgba(204,255,51,.4), 0 0 44px rgba(204,255,51,.16);
     }
 
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
+    html { scroll-behavior: smooth; }
+
     body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+      font-family: var(--ff-body);
       background: var(--bg);
       color: var(--text);
       -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
+      min-height: 100vh;
+      overflow-x: hidden;
+      position: relative;
     }
 
-    /* ── Header ── */
+    /* Atmosphere: accent glow + faint grain */
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+      background:
+        radial-gradient(1100px 520px at 50% -8%, var(--glow), transparent 60%),
+        radial-gradient(680px 420px at 92% 4%, var(--glow), transparent 70%);
+    }
+    body::after {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+      opacity: .5;
+      mix-blend-mode: soft-light;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.35'/%3E%3C/svg%3E");
+    }
+
+    .wrap { position: relative; z-index: 1; }
+
+    ::selection { background: var(--accent); color: var(--accent-ink); }
+
+    /* ─────────────────────────  HEADER  ───────────────────────── */
     header {
-      background: var(--surface);
-      border-bottom: 1px solid var(--border);
-      padding: 48px 24px 40px;
+      position: relative;
+      padding: 56px 24px 38px;
       text-align: center;
+      border-bottom: 1px solid var(--border);
+      background:
+        linear-gradient(180deg, color-mix(in srgb, var(--surface) 55%, transparent), transparent);
+    }
+    /* net / court line under the header */
+    header::after {
+      content: "";
+      position: absolute;
+      left: 50%; bottom: -1px;
+      width: min(560px, 80%);
+      height: 1px;
+      transform: translateX(-50%);
+      background: repeating-linear-gradient(90deg, var(--border-strong) 0 7px, transparent 7px 14px);
     }
 
-    .header-eyebrow {
-      font-size: 0.75rem;
-      font-weight: 600;
-      letter-spacing: 0.1em;
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.22em;
       text-transform: uppercase;
-      color: var(--accent);
-      margin-bottom: 8px;
+      color: var(--accent-text);
+      margin-bottom: 24px;
+    }
+    .eyebrow::before {
+      content: "";
+      width: 9px; height: 9px;
+      border-radius: 2px;
+      background: var(--accent);
+      box-shadow: 0 0 12px var(--accent);
     }
 
-    header h1 {
-      font-size: clamp(2.4rem, 5vw, 3.6rem);
-      font-weight: 800;
-      letter-spacing: -0.04em;
-      line-height: 1;
+    .wordmark {
+      font-family: var(--ff-display);
+      font-size: clamp(3rem, 11vw, 6.8rem);
+      line-height: 0.86;
+      letter-spacing: 0.035em;
+      text-transform: uppercase;
       color: var(--text);
+    }
+    .wordmark .dot {
+      display: inline-block;
+      width: 0.26em;
+      height: 0.26em;
+      margin-left: 0.05em;
+      border-radius: 0.065em;
+      background: var(--accent);
+      box-shadow: 0 0 0.3em var(--accent);
+      vertical-align: baseline;
     }
 
     .header-meta {
-      margin-top: 12px;
-      font-size: 0.9rem;
-      color: var(--muted);
-    }
-
-    /* ── Layout ── */
-    .container {
-      max-width: 1000px;
-      margin: 0 auto;
-      padding: 40px 20px 80px;
-      display: flex;
-      flex-direction: column;
-      gap: 48px;
-    }
-
-    section { display: flex; flex-direction: column; gap: 16px; }
-
-    .section-title {
-      font-size: 0.7rem;
-      font-weight: 700;
-      letter-spacing: 0.12em;
+      margin-top: 26px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 6px 18px;
+      font-size: 0.74rem;
+      font-weight: 600;
+      letter-spacing: 0.16em;
       text-transform: uppercase;
       color: var(--muted);
     }
+    .header-meta .meta-stat {
+      display: inline-flex;
+      align-items: center;
+      gap: 9px;
+    }
+    .header-meta .meta-count {
+      font-family: var(--ff-display);
+      font-size: 1.45rem;
+      line-height: 1;
+      letter-spacing: 0.02em;
+      color: var(--accent-text);
+    }
+    .header-meta .meta-players { font-weight: 700; color: var(--text); }
+    .header-meta .meta-players .sep { color: var(--accent-text); margin: 0 9px; }
 
-    /* ── Card base ── */
+    /* ─────────────────────────  LAYOUT  ───────────────────────── */
+    .container {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 44px 20px 90px;
+      display: flex;
+      flex-direction: column;
+      gap: 52px;
+    }
+
+    section { display: flex; flex-direction: column; gap: 18px; }
+
+    .section-title {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+    .section-title::before {
+      content: "";
+      width: 18px; height: 3px;
+      border-radius: 2px;
+      background: var(--accent);
+    }
+
     .card {
       background: var(--surface);
       border-radius: var(--radius);
       border: 1px solid var(--border);
-      box-shadow: var(--shadow-sm);
+      box-shadow: var(--shadow);
     }
 
-    /* ── Standings ── */
-    .standings-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 12px;
-    }
-
-    .player-card {
-      padding: 28px 20px 24px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 0;
-      position: relative;
+    /* ─────────────────────────  LEADERBOARD  ───────────────────────── */
+    .leaderboard {
       overflow: hidden;
-      transition: box-shadow 0.2s;
-    }
-
-    .player-card:hover {
-      box-shadow: var(--shadow-md);
-    }
-
-    .player-card.gold { border-top: 3px solid #f5a623; }
-    .player-card.silver { border-top: 3px solid #b0b8c1; }
-    .player-card.bronze { border-top: 3px solid #c9845a; }
-
-    .player-medal {
-      font-size: 1.4rem;
-      margin-bottom: 6px;
-    }
-
-    .player-name {
-      font-size: 1.3rem;
-      font-weight: 800;
-      letter-spacing: -0.02em;
-      margin-bottom: 20px;
-    }
-
-    .win-rate {
-      font-size: 3rem;
-      font-weight: 800;
-      letter-spacing: -0.04em;
-      color: var(--accent);
-      line-height: 1;
-    }
-
-    .win-rate-label {
-      font-size: 0.7rem;
-      font-weight: 600;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      color: var(--muted);
-      margin-bottom: 20px;
-      margin-top: 3px;
-    }
-
-    .wlt {
-      display: flex;
-      gap: 16px;
-      width: 100%;
-      justify-content: center;
-      padding-top: 16px;
-      border-top: 1px solid var(--border);
-    }
-
-    .wlt-item {
+      padding: 6px;
       display: flex;
       flex-direction: column;
+      gap: 6px;
+    }
+
+    .lb-row {
+      display: grid;
+      grid-template-columns: 64px 1fr minmax(180px, 300px);
       align-items: center;
-      gap: 2px;
+      gap: 18px;
+      padding: 20px 22px;
+      border-radius: 13px;
+      position: relative;
+      transition: background .25s ease, transform .25s ease;
     }
+    .lb-row:hover { background: var(--surface-2); transform: translateX(2px); }
 
-    .wlt-num {
-      font-size: 1.1rem;
-      font-weight: 700;
+    /* Podium medals */
+    .lb-row.gold { box-shadow: inset 3px 0 0 #e0a915; }
+
+    .lb-row.leader {
+      background: linear-gradient(90deg, color-mix(in srgb, #e0a915 15%, transparent), transparent 60%);
     }
+    .lb-row.leader:hover { background: linear-gradient(90deg, color-mix(in srgb, #e0a915 22%, transparent), transparent 62%); }
 
-    .wlt-label {
-      font-size: 0.65rem;
-      font-weight: 600;
-      letter-spacing: 0.08em;
+    .lb-rank {
+      font-family: var(--ff-display);
+      font-size: 2.6rem;
+      line-height: 1;
+      color: var(--faint);
+      text-align: center;
+    }
+    .lb-rank.gold, .lb-rank.silver, .lb-rank.bronze {
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+    .lb-rank.gold   { background-image: linear-gradient(160deg, #ffd86b, #e0a915 55%, #a9760a); }
+    .lb-rank.silver { background-image: linear-gradient(160deg, #e9edf1, #b3bcc6 55%, #868f99); }
+    .lb-rank.bronze { background-image: linear-gradient(160deg, #eab184, #c4783f 55%, #8f5125); }
+
+    .lb-name {
+      font-family: var(--ff-display);
+      font-size: 1.85rem;
+      line-height: 1;
       text-transform: uppercase;
-      color: var(--muted);
+      letter-spacing: 0.015em;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .lb-crown {
+      font-family: var(--ff-body);
+      font-size: 0.6rem;
+      font-weight: 800;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: #5a3f00;
+      background: linear-gradient(135deg, #ffe08a, #e0a915);
+      padding: 4px 9px;
+      border-radius: 20px;
+      line-height: 1;
+      box-shadow: 0 0 16px rgba(224,169,21,.4);
     }
 
-    .wlt-w .wlt-num { color: var(--win); }
-    .wlt-l .wlt-num { color: var(--loss); }
-    .wlt-t .wlt-num { color: var(--tie); }
+    .lb-sub {
+      margin-top: 9px;
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      flex-wrap: wrap;
+      font-size: 0.82rem;
+      font-weight: 500;
+      color: var(--muted);
+      font-variant-numeric: tabular-nums;
+    }
+    .lb-stat { font-weight: 700; }
+    .lb-stat.w { color: var(--win); }
+    .lb-stat.l { color: var(--loss); }
+    .lb-stat.t { color: var(--tie); }
+    .lb-dot { color: var(--faint); }
 
-    /* ── H2H ── */
+    .lb-rate {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      justify-content: flex-end;
+    }
+    .lb-bar {
+      flex: 1;
+      height: 9px;
+      border-radius: 20px;
+      background: var(--surface-2);
+      overflow: hidden;
+      min-width: 70px;
+    }
+    .lb-bar-fill {
+      display: block;
+      height: 100%;
+      width: 0;
+      border-radius: 20px;
+      background: var(--accent);
+      transition: width 1.05s cubic-bezier(.22,.68,.2,1);
+    }
+    .lb-row:not(.leader) .lb-bar-fill { opacity: .8; }
+
+    .lb-pct {
+      font-family: var(--ff-display);
+      font-size: 2.3rem;
+      line-height: 1;
+      color: var(--text);
+      font-variant-numeric: tabular-nums;
+      min-width: 86px;
+      text-align: right;
+    }
+    .lb-pct-sym { font-size: 1.2rem; color: var(--muted); margin-left: 1px; }
+
+    /* ─────────────────────────  HEAD TO HEAD  ───────────────────────── */
     .h2h-grid {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
-      gap: 12px;
-    }
-
-    .h2h-card {
-      padding: 22px 16px;
-      text-align: center;
-    }
-
-    .h2h-score {
-      display: flex;
-      align-items: center;
-      justify-content: center;
       gap: 14px;
-      margin-bottom: 10px;
     }
+    .h2h-card {
+      padding: 22px 20px 18px;
+      transition: transform .25s ease, border-color .25s ease, box-shadow .25s ease;
+    }
+    .h2h-card:hover { transform: translateY(-4px); border-color: var(--border-strong); box-shadow: var(--shadow); }
 
-    .h2h-score-side {
-      display: flex;
-      flex-direction: column;
+    .h2h-top {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
       align-items: center;
-      gap: 5px;
+      gap: 8px;
     }
-
-    .h2h-score-num {
-      font-size: 3rem;
-      font-weight: 800;
-      letter-spacing: -0.04em;
-      line-height: 1;
+    .h2h-side { display: flex; flex-direction: column; align-items: center; gap: 7px; }
+    .h2h-name {
+      font-size: 0.66rem;
+      font-weight: 700;
+      letter-spacing: 0.11em;
+      text-transform: uppercase;
       color: var(--muted);
+      transition: color .2s;
+      white-space: nowrap;
     }
-
-    .h2h-score-num.win  { color: var(--win); }
-    .h2h-score-num.loss { color: var(--loss); }
-
-    .h2h-score-name {
-      font-size: 0.65rem;
+    .h2h-side.lead .h2h-name { color: var(--text); }
+    .h2h-num {
+      font-family: var(--ff-display);
+      font-size: 3rem;
+      line-height: 0.9;
+      color: var(--text);
+      font-variant-numeric: tabular-nums;
+    }
+    .h2h-side.lead .h2h-num { color: var(--accent-text); }
+    .h2h-vs {
+      font-size: 0.62rem;
       font-weight: 700;
       letter-spacing: 0.1em;
       text-transform: uppercase;
-      color: var(--muted);
+      color: var(--faint);
     }
 
-    .h2h-score-dash {
-      font-size: 1.4rem;
-      color: var(--muted);
-      padding-bottom: 22px;
+    .h2h-bar {
+      display: flex;
+      height: 8px;
+      margin: 16px 0 13px;
+      border-radius: 20px;
+      overflow: hidden;
+      background: var(--surface-2);
     }
+    .h2h-seg { width: 0; height: 100%; background: var(--faint); transition: width 1s cubic-bezier(.22,.68,.2,1); }
+    .h2h-seg.lead { background: var(--accent); }
+    .h2h-seg.tie  { background: var(--tie); }
 
-    .h2h-tie {
-      font-size: 0.78rem;
+    .h2h-verdict {
+      font-size: 0.82rem;
       font-weight: 600;
-      color: var(--tie);
-      margin-bottom: 12px;
-    }
-
-    .h2h-tie.no-tie { color: var(--muted); font-weight: 400; }
-
-    .h2h-sets-row {
-      font-size: 0.78rem;
       color: var(--muted);
-      padding-top: 10px;
-      border-top: 1px solid var(--border);
-    }
-
-    /* ── Chart ── */
-    .chart-card {
-      padding: 28px 28px 20px;
-    }
-    .chart-wrap {
-      position: relative;
-      height: 260px;
-    }
-    @media (max-width: 640px) {
-      .chart-wrap { height: 320px; }
-    }
-
-    /* ── Recent results ── */
-    .result-row {
-      display: grid;
-      grid-template-columns: 80px 1fr auto 1fr 110px;
-      align-items: center;
-      gap: 4px;
-      padding: 11px 20px;
-      border-bottom: 1px solid var(--border);
-    }
-
-    .result-row:last-child { border-bottom: none; }
-
-    .result-date {
-      font-size: 0.78rem;
-      color: var(--muted);
-      font-weight: 500;
-    }
-
-    .result-player {
-      font-weight: 600;
-      font-size: 0.9rem;
-    }
-
-
-    .result-scores {
       text-align: center;
-      font-size: 0.78rem;
-      color: var(--muted);
+      margin-bottom: 5px;
+    }
+    .h2h-verdict strong { color: var(--text); font-weight: 800; }
+
+    .h2h-meta {
+      font-size: 0.72rem;
       font-weight: 500;
-      white-space: nowrap;
+      color: var(--faint);
+      text-align: center;
+      font-variant-numeric: tabular-nums;
+    }
+    .h2h-meta .tie { color: var(--tie); font-weight: 700; }
+
+    /* ─────────────────────────  CHART  ───────────────────────── */
+    .chart-card { padding: 26px 26px 18px; }
+    .chart-wrap { position: relative; height: 300px; }
+    @media (max-width: 640px) { .chart-wrap { height: 340px; } }
+
+    /* ─────────────────────────  RESULTS (scorecards)  ───────────────────────── */
+    .results { overflow: hidden; }
+    .match {
+      padding: 15px 22px;
+      border-bottom: 1px solid var(--border);
+      transition: background .2s ease;
+    }
+    .match:last-child { border-bottom: none; }
+    .match:hover { background: var(--surface-2); }
+    .match.is-new { background: color-mix(in srgb, var(--accent) 7%, transparent); }
+    .match.is-new:hover { background: color-mix(in srgb, var(--accent) 12%, transparent); }
+    .match-new {
+      display: inline-block;
+      vertical-align: middle;
+      margin-left: 9px;
+      font-size: 0.55rem;
+      font-weight: 800;
+      letter-spacing: 0.11em;
+      text-transform: uppercase;
+      color: var(--accent-ink);
+      background: var(--accent);
+      padding: 3px 8px;
+      border-radius: 20px;
+      line-height: 1;
+      box-shadow: 0 0 13px color-mix(in srgb, var(--accent) 55%, transparent);
     }
 
-    .result-player-right {
-      font-weight: 600;
-      font-size: 0.9rem;
-      text-align: right;
+    .match-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 9px;
     }
-
-
-    .badge {
+    .match-date {
       font-size: 0.7rem;
       font-weight: 700;
-      padding: 4px 10px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+    .match-tag {
+      font-size: 0.62rem;
+      font-weight: 800;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      padding: 3px 9px;
       border-radius: 20px;
-      text-align: center;
+      color: var(--faint);
+      border: 1px solid var(--border);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .match-line {
+      display: grid;
+      align-items: center;
+      column-gap: 6px;
+      padding: 4px 0;
+    }
+    .match-mark {
+      width: 16px;
+      color: var(--accent-text);
+      font-size: 0.74rem;
+      font-weight: 800;
+      line-height: 1;
+    }
+    .match-mark.tie { color: var(--tie); }
+    .match-name {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--muted);
       white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
+    .match-line.winner .match-name { color: var(--text); font-weight: 800; }
+    .match-line.tie .match-name { color: var(--text); }
+    .match-set {
+      text-align: center;
+      font-size: 0.92rem;
+      font-weight: 600;
+      color: var(--faint);
+      font-variant-numeric: tabular-nums;
+    }
+    .match-set.won { color: var(--text); font-weight: 800; }
 
-    .badge-win { background: #e8f5e9; color: #1b5e20; }
-    .badge-tie { background: #fff8e1; color: #e65100; }
-
-    .result-badge { display: flex; justify-content: flex-end; }
-
-    /* ── Footer ── */
+    /* ─────────────────────────  FOOTER  ───────────────────────── */
     footer {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 7px;
       text-align: center;
-      font-size: 0.75rem;
-      color: var(--muted);
-      padding: 0 20px 40px;
+      font-size: 0.74rem;
+      color: var(--faint);
+      padding: 0 20px 48px;
+      letter-spacing: 0.03em;
     }
+    .foot-copy { font-size: 0.7rem; opacity: 0.85; }
 
-    /* ── Loading / error ── */
-    .placeholder {
-      text-align: center;
-      padding: 48px;
-      color: var(--muted);
-      font-size: 0.9rem;
+    /* ─────────────────────────  PLACEHOLDERS / SKELETON  ───────────────────────── */
+    .placeholder { text-align: center; padding: 44px; color: var(--muted); font-size: 0.9rem; }
+    .skeleton {
+      background: linear-gradient(100deg, var(--surface-2) 30%, var(--border) 50%, var(--surface-2) 70%);
+      background-size: 220% 100%;
+      animation: shimmer 1.4s infinite linear;
+      border-radius: 10px;
     }
+    @keyframes shimmer { from { background-position: 200% 0; } to { background-position: -20% 0; } }
 
-    @media (max-width: 640px) {
-      .standings-grid, .h2h-grid { grid-template-columns: 1fr; }
-      .result-row {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        padding: 10px 14px;
+    /* ─────────────────────────  MOTION  ───────────────────────── */
+    .reveal { animation: rise .72s cubic-bezier(.2,.7,.2,1) both; }
+    @keyframes rise { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: none; } }
+
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      *, *::before, *::after {
+        animation-duration: .001ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: .001ms !important;
       }
-      .result-date { flex-shrink: 0; }
-      .result-player, .result-player-right { flex-shrink: 0; }
-      .result-scores { flex: 1; text-align: center; }
-      .result-badge { display: none; }
-      .chart-card { padding: 18px 12px 14px; }
+    }
+
+    /* ─────────────────────────  RESPONSIVE  ───────────────────────── */
+    @media (max-width: 680px) {
+      .h2h-grid { grid-template-columns: 1fr; }
+
+      .lb-row {
+        grid-template-columns: 48px 1fr;
+        gap: 8px 14px;
+        padding: 18px 16px;
+      }
+      .lb-rank { font-size: 2.1rem; }
+      .lb-name { font-size: 1.5rem; }
+      .lb-rate {
+        grid-column: 1 / -1;
+        margin-top: 4px;
+      }
+      .lb-pct { font-size: 1.9rem; min-width: 70px; }
+
+      .match { padding: 13px 16px; }
+      .chart-card { padding: 18px 10px 12px; }
+      .container { gap: 42px; padding-top: 36px; }
     }
   </style>
 </head>
 <body>
+<div class="wrap">
 
-<header>
-  <div class="header-eyebrow">Season 2026</div>
-  <h1>Badminton</h1>
-  <p class="header-meta" id="header-meta">Loading...</p>
-</header>
+  <header>
+    <div class="eyebrow reveal">Season 2026</div>
+    <h1 class="wordmark reveal" style="animation-delay:80ms">Badminton<span class="dot"></span></h1>
+    <p class="header-meta reveal" id="header-meta" style="animation-delay:170ms">Loading…</p>
+  </header>
 
-<div class="container">
+  <div class="container">
 
-  <section>
-    <div class="section-title">Standings</div>
-    <div class="standings-grid" id="standings">
-      <div class="card placeholder">Loading...</div>
-    </div>
-  </section>
-
-  <section>
-    <div class="section-title">Head to Head</div>
-    <div class="h2h-grid" id="h2h">
-      <div class="card placeholder">Loading...</div>
-    </div>
-  </section>
-
-  <section>
-    <div class="section-title">Wins this season</div>
-    <div class="card chart-card">
-      <div class="chart-wrap">
-        <canvas id="chart"></canvas>
+    <section>
+      <div class="section-title">Leaderboard</div>
+      <div id="leaderboard">
+        <div class="skeleton" style="height:310px;border-radius:18px"></div>
       </div>
-    </div>
-  </section>
+    </section>
 
-  <section>
-    <div class="section-title">Recent Results</div>
-    <div class="card" id="results">
-      <div class="placeholder">Loading...</div>
-    </div>
-  </section>
+    <section>
+      <div class="section-title">Head to Head</div>
+      <div class="h2h-grid" id="h2h">
+        <div class="skeleton" style="height:174px;border-radius:18px"></div>
+        <div class="skeleton" style="height:174px;border-radius:18px"></div>
+        <div class="skeleton" style="height:174px;border-radius:18px"></div>
+      </div>
+    </section>
+
+    <section>
+      <div class="section-title">Wins this season</div>
+      <div id="chart-section">
+        <div class="skeleton" style="height:344px;border-radius:18px"></div>
+      </div>
+    </section>
+
+    <section>
+      <div class="section-title">Recent Results</div>
+      <div id="results">
+        <div class="skeleton" style="height:360px;border-radius:18px"></div>
+      </div>
+    </section>
+
+  </div>
+
+  <footer id="footer"></footer>
 
 </div>
-
-<footer id="footer"></footer>
 
 <script>
   // ── CONFIG — paste your Apps Script web app URL here ──
   const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyNr-1TSWNseq-s_5qNOKRcyQWAZQ4haLBkoRgodhWSZQQ-O793LqyyEM4n4UU0g9i5/exec';
   const PLAYERS = ['Vojta', 'Albi', 'Vítek'];
-  const MEDALS = ['gold', 'silver', 'bronze'];
-  const TROPHIES = ['🥇', '🥈', '🥉'];
 
-  // ── Fetch data ──
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  let chartInstance = null;
+  let lastStats = null;
+  let lastMatches = null;
+
+  /* ────────────────  THEME  ──────────────── */
+  // Follow the device's light/dark setting, live
+  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
+    document.documentElement.setAttribute('data-theme', e.matches ? 'dark' : 'light');
+    if (lastStats) renderChart(lastStats, lastMatches);
+  });
+
+  function cssVar(name) {
+    return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+  }
+
+  /* ────────────────  DATA  ──────────────── */
   async function fetchMatches() {
     try {
       const res = await fetch(`${SCRIPT_URL}?action=data`);
@@ -405,7 +670,6 @@
     }
   }
 
-  // ── Compute stats ──
   function computeStats(matches) {
     const stats = Object.fromEntries(PLAYERS.map(p => [p, {
       played: 0, wins: 0, losses: 0, ties: 0, setsWon: 0, setsLost: 0
@@ -453,66 +717,104 @@
     });
   }
 
-  // ── Render standings ──
-  function renderStandings(stats) {
+  /* ────────────────  LEADERBOARD  ──────────────── */
+  function renderLeaderboard(stats) {
     const ranked = rankPlayers(stats);
     return ranked.map((p, i) => {
       const s = stats[p];
       const pct = s.played ? Math.round(s.wins / s.played * 100) : 0;
+      const diff = s.setsWon - s.setsLost;
+      const leader = i === 0 && s.played > 0;
+      const medal = ['gold', 'silver', 'bronze'][i] || '';
       return `
-        <div class="card player-card ${MEDALS[i]}">
-          <div class="player-medal">${TROPHIES[i]}</div>
-          <div class="player-name">${p}</div>
-          <div class="win-rate">${pct}%</div>
-          <div class="win-rate-label">Win rate</div>
-          <div class="wlt">
-            <div class="wlt-item wlt-w">
-              <span class="wlt-num">${s.wins}</span>
-              <span class="wlt-label">W</span>
+        <div class="lb-row reveal ${medal} ${leader ? 'leader' : ''}" style="animation-delay:${120 + i * 90}ms">
+          <div class="lb-rank ${medal}">${i + 1}</div>
+          <div class="lb-main">
+            <div class="lb-name">${p}${leader ? '<span class="lb-crown">Leader</span>' : ''}</div>
+            <div class="lb-sub">
+              <span class="lb-stat w">${s.wins}W</span>
+              <span class="lb-stat l">${s.losses}L</span>
+              <span class="lb-stat t">${s.ties}T</span>
+              <span class="lb-dot">·</span>
+              <span>${s.played} played</span>
+              <span class="lb-dot">·</span>
+              <span>${diff >= 0 ? '+' : ''}${diff} sets</span>
             </div>
-            <div class="wlt-item wlt-l">
-              <span class="wlt-num">${s.losses}</span>
-              <span class="wlt-label">L</span>
-            </div>
-            <div class="wlt-item wlt-t">
-              <span class="wlt-num">${s.ties}</span>
-              <span class="wlt-label">T</span>
-            </div>
+          </div>
+          <div class="lb-rate">
+            <div class="lb-bar"><span class="lb-bar-fill" style="--rate:${pct}%"></span></div>
+            <div class="lb-pct"><span class="js-countup" data-target="${pct}">0</span><span class="lb-pct-sym">%</span></div>
           </div>
         </div>`;
     }).join('');
   }
 
-  // ── Render H2H ──
+  function countUp(el, target, dur) {
+    if (reduceMotion) { el.textContent = target; return; }
+    const start = performance.now();
+    function tick(now) {
+      const t = Math.min(1, (now - start) / dur);
+      const eased = 1 - Math.pow(1 - t, 3);
+      el.textContent = Math.round(target * eased);
+      if (t < 1) requestAnimationFrame(tick);
+    }
+    requestAnimationFrame(tick);
+  }
+
+  function animateBars() {
+    const setW = el => { el.style.width = el.style.getPropertyValue('--rate') || el.style.getPropertyValue('--w'); };
+    const fills = document.querySelectorAll('.lb-bar-fill, .h2h-seg');
+    if (reduceMotion) {
+      fills.forEach(setW);
+    } else {
+      requestAnimationFrame(() => requestAnimationFrame(() => fills.forEach(setW)));
+    }
+    document.querySelectorAll('.js-countup').forEach(el => countUp(el, +el.dataset.target, 1100));
+  }
+
+  /* ────────────────  HEAD TO HEAD  ──────────────── */
   function renderH2H(h2h) {
-    const pairs = [['Vojta','Albi'], ['Vojta','Vítek'], ['Albi','Vítek']];
-    return pairs.map(([a, b]) => {
+    const pairs = [['Vojta', 'Albi'], ['Vojta', 'Vítek'], ['Albi', 'Vítek']];
+    return pairs.map(([a, b], i) => {
       const aw = h2h[a][b].wins, bw = h2h[b][a].wins;
       const at = h2h[a][b].ties;
       const as = h2h[a][b].setsWon, bs = h2h[b][a].setsWon;
-      const aWinClass = aw > bw ? 'win' : aw < bw ? 'loss' : '';
-      const bWinClass = bw > aw ? 'win' : bw < aw ? 'loss' : '';
-      const tieText = at === 0 ? 'no ties' : at === 1 ? '1 tie' : `${at} ties`;
+      const total = aw + bw + at;
+      const aLead = aw > bw, bLead = bw > aw;
+      const pct = v => total ? (v / total * 100) : 0;
+      const tieText = at === 1 ? '1 tie' : `${at} ties`;
+
+      let verdict;
+      if (total === 0)  verdict = 'No matches yet';
+      else if (aLead)   verdict = `<strong>${a}</strong> leads ${aw}–${bw}`;
+      else if (bLead)   verdict = `<strong>${b}</strong> leads ${bw}–${aw}`;
+      else              verdict = `Series tied ${aw}–${bw}`;
+
       return `
-        <div class="card h2h-card">
-          <div class="h2h-score">
-            <div class="h2h-score-side">
-              <span class="h2h-score-num ${aWinClass}">${aw}</span>
-              <span class="h2h-score-name">${a}</span>
+        <div class="card h2h-card reveal" style="animation-delay:${140 + i * 80}ms">
+          <div class="h2h-top">
+            <div class="h2h-side ${aLead ? 'lead' : ''}">
+              <div class="h2h-name">${a}</div>
+              <div class="h2h-num">${aw}</div>
             </div>
-            <span class="h2h-score-dash">–</span>
-            <div class="h2h-score-side">
-              <span class="h2h-score-num ${bWinClass}">${bw}</span>
-              <span class="h2h-score-name">${b}</span>
+            <div class="h2h-vs">vs</div>
+            <div class="h2h-side ${bLead ? 'lead' : ''}">
+              <div class="h2h-name">${b}</div>
+              <div class="h2h-num">${bw}</div>
             </div>
           </div>
-          <div class="h2h-tie${at === 0 ? ' no-tie' : ''}">${tieText}</div>
-          <div class="h2h-sets-row">Sets ${as} – ${bs}</div>
+          <div class="h2h-bar">
+            <span class="h2h-seg ${aLead ? 'lead' : ''}" style="--w:${pct(aw)}%"></span>
+            ${at ? `<span class="h2h-seg tie" style="--w:${pct(at)}%"></span>` : ''}
+            <span class="h2h-seg ${bLead ? 'lead' : ''}" style="--w:${pct(bw)}%"></span>
+          </div>
+          <div class="h2h-verdict">${verdict}</div>
+          <div class="h2h-meta">${total} played${at ? ` · <span class="tie">${tieText}</span>` : ''} · sets ${as}–${bs}</div>
         </div>`;
     }).join('');
   }
 
-  // ── Render results ──
+  /* ────────────────  RESULTS  ──────────────── */
   function renderResults(matches) {
     const recent = [...matches]
       .sort((a, b) => new Date(b.date) - new Date(a.date))
@@ -520,106 +822,164 @@
 
     if (!recent.length) return '<div class="placeholder">No matches recorded yet.</div>';
 
-    return recent.map(m => {
+    const latestDay = new Date(recent[0].date).toDateString();
+
+    return recent.map((m, i) => {
+      const isNew = new Date(m.date).toDateString() === latestDay;
       const isTie = m.result === 'Tie';
-      const p1wins = m.result === m.player1;
-      const p2wins = m.result === m.player2;
+      const p1won = m.result === m.player1;
+      const p2won = m.result === m.player2;
+
       const sets = [];
-      for (let i = 1; i <= 5; i++) {
-        const a = m[`s${i}_p1`], b = m[`s${i}_p2`];
-        if (a !== '' && a !== undefined && a !== null) sets.push(`${a}–${b}`);
+      for (let j = 1; j <= 5; j++) {
+        const a = m[`s${j}_p1`], b = m[`s${j}_p2`];
+        if (a !== '' && a !== undefined && a !== null) sets.push([a, b]);
       }
+
+      const cols = `16px minmax(0,1fr) repeat(${sets.length}, 30px)`;
+      const sw1 = Number(m.sets_won_p1) || 0;
+      const sw2 = Number(m.sets_won_p2) || 0;
+
+      const cells = (idx) => sets.map(([a, b]) => {
+        const mine = idx === 0 ? a : b, theirs = idx === 0 ? b : a;
+        return `<span class="match-set ${Number(mine) > Number(theirs) ? 'won' : ''}">${mine}</span>`;
+      }).join('');
+
       const date = new Date(m.date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
-      const badge = isTie
-        ? `<span class="badge badge-tie">Tie</span>`
-        : `<span class="badge badge-win">${m.result}</span>`;
+      const tag = `<span class="match-tag">${Math.max(sw1, sw2)}–${Math.min(sw1, sw2)}</span>`;
 
       return `
-        <div class="result-row">
-          <span class="result-date">${date}</span>
-          <span class="result-player">${m.player1}</span>
-          <span class="result-scores">${sets.join(' · ')}</span>
-          <span class="result-player-right">${m.player2}</span>
-          <div class="result-badge">${badge}</div>
+        <div class="match reveal${isNew ? ' is-new' : ''}" style="animation-delay:${i * 45}ms">
+          <div class="match-head">
+            <span class="match-date">${date}${isNew ? '<span class="match-new">New</span>' : ''}</span>
+            ${tag}
+          </div>
+          <div class="match-line ${p1won ? 'winner' : ''}${isTie ? ' tie' : ''}" style="grid-template-columns:${cols}">
+            <span class="match-mark${isTie ? ' tie' : ''}">${p1won ? 'W' : isTie ? 'T' : ''}</span>
+            <span class="match-name">${m.player1}</span>
+            ${cells(0)}
+          </div>
+          <div class="match-line ${p2won ? 'winner' : ''}${isTie ? ' tie' : ''}" style="grid-template-columns:${cols}">
+            <span class="match-mark${isTie ? ' tie' : ''}">${p2won ? 'W' : isTie ? 'T' : ''}</span>
+            <span class="match-name">${m.player2}</span>
+            ${cells(1)}
+          </div>
         </div>`;
     }).join('');
   }
 
-  // ── Render chart ──
-  function renderChart(stats) {
-    const ranked = rankPlayers(stats);
+  /* ────────────────  CHART  ──────────────── */
+  function renderChart(stats, matches) {
     const ctx = document.getElementById('chart').getContext('2d');
-    new Chart(ctx, {
-      type: 'bar',
+    const gridColor = cssVar('--grid');
+    const textColor = cssVar('--muted');
+
+    // Colour each player by their current podium standing
+    const ranked = rankPlayers(stats);
+    const medalVars = ['--gold', '--silver', '--bronze'];
+    const colorOf = {};
+    ranked.forEach((p, i) => { colorOf[p] = cssVar(medalVars[i]) || textColor; });
+
+    // Cumulative wins across the season, one point per match played
+    const ordered = [...(matches || [])].sort((a, b) => new Date(a.date) - new Date(b.date));
+    const running = Object.fromEntries(PLAYERS.map(p => [p, 0]));
+    const labels = [];
+    const series = Object.fromEntries(PLAYERS.map(p => [p, []]));
+    ordered.forEach(m => {
+      if (m.result && m.result !== 'Tie' && running[m.result] !== undefined) running[m.result]++;
+      labels.push(new Date(m.date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }));
+      PLAYERS.forEach(p => series[p].push(running[p]));
+    });
+
+    if (chartInstance) chartInstance.destroy();
+
+    chartInstance = new Chart(ctx, {
+      type: 'line',
       data: {
-        labels: ranked,
-        datasets: [
-          {
-            label: 'Wins',
-            data: ranked.map(p => stats[p].wins),
-            backgroundColor: '#34c759',
-            borderRadius: 6,
-            borderSkipped: false,
-          },
-          {
-            label: 'Losses',
-            data: ranked.map(p => stats[p].losses),
-            backgroundColor: '#ff3b30',
-            borderRadius: 6,
-            borderSkipped: false,
-          },
-          {
-            label: 'Ties',
-            data: ranked.map(p => stats[p].ties),
-            backgroundColor: '#ff9f0a',
-            borderRadius: 6,
-            borderSkipped: false,
-          }
-        ]
+        labels,
+        datasets: PLAYERS.map(p => ({
+          label: p,
+          data: series[p],
+          borderColor: colorOf[p],
+          backgroundColor: colorOf[p],
+          pointBackgroundColor: colorOf[p],
+          pointBorderColor: colorOf[p],
+          borderWidth: 3,
+          pointRadius: 2.5,
+          pointHoverRadius: 5,
+          cubicInterpolationMode: 'monotone'
+        }))
       },
       options: {
         responsive: true,
         maintainAspectRatio: false,
+        animation: reduceMotion ? false : { duration: 900, easing: 'easeOutQuart' },
+        interaction: { mode: 'index', intersect: false },
         plugins: {
           legend: {
             position: 'bottom',
-            labels: { usePointStyle: true, pointStyle: 'circle', padding: 20, font: { size: 12 } }
+            labels: { usePointStyle: true, pointStyle: 'circle', padding: 22, color: textColor, font: { size: 12, weight: '600', family: "'Hanken Grotesk', sans-serif" } }
+          },
+          tooltip: {
+            backgroundColor: cssVar('--surface-2'),
+            titleColor: cssVar('--text'),
+            bodyColor: cssVar('--text'),
+            borderColor: cssVar('--border'),
+            borderWidth: 1,
+            padding: 12,
+            cornerRadius: 10,
+            titleFont: { family: "'Hanken Grotesk', sans-serif", weight: '700' },
+            bodyFont: { family: "'Hanken Grotesk', sans-serif" }
           }
         },
         scales: {
-          x: { grid: { display: false }, border: { display: false } },
-          y: {
-            beginAtZero: true,
-            ticks: { stepSize: 1, precision: 0 },
-            grid: { color: '#f0f0f5' },
-            border: { display: false }
-          }
+          x: { grid: { display: false }, border: { display: false }, ticks: { color: textColor, maxRotation: 0, autoSkip: true, maxTicksLimit: 7, font: { size: 11, weight: '600', family: "'Hanken Grotesk', sans-serif" } } },
+          y: { beginAtZero: true, ticks: { stepSize: 1, precision: 0, color: textColor, font: { family: "'Hanken Grotesk', sans-serif" } }, grid: { color: gridColor }, border: { display: false } }
         }
       }
     });
   }
 
-  // ── Init ──
+  /* ────────────────  INIT  ──────────────── */
   async function init() {
     const matches = await fetchMatches();
 
     if (!matches) {
       document.getElementById('header-meta').textContent = 'Could not load data.';
+      document.getElementById('leaderboard').innerHTML = '<div class="placeholder">Could not load data.</div>';
+      document.getElementById('h2h').innerHTML = '<div class="card placeholder">Could not load data.</div>';
+      document.getElementById('results').innerHTML = '<div class="placeholder">Could not load data.</div>';
+      document.getElementById('chart-section').innerHTML = '<div class="placeholder">Could not load data.</div>';
       return;
     }
 
     const { stats, h2h } = computeStats(matches);
+    lastStats = stats;
+    lastMatches = matches;
 
-    document.getElementById('standings').innerHTML = renderStandings(stats);
+    const lb = document.getElementById('leaderboard');
+    lb.className = 'card leaderboard';
+    lb.innerHTML = renderLeaderboard(stats);
+
     document.getElementById('h2h').innerHTML = renderH2H(h2h);
-    document.getElementById('results').innerHTML = renderResults(matches);
-    renderChart(stats);
+
+    const rs = document.getElementById('results');
+    rs.className = 'card results';
+    rs.innerHTML = renderResults(matches);
+
+    document.getElementById('chart-section').innerHTML =
+      '<div class="card chart-card"><div class="chart-wrap"><canvas id="chart"></canvas></div></div>';
+    renderChart(stats, matches);
+
+    animateBars();
 
     const n = matches.length;
-    document.getElementById('header-meta').textContent =
-      `${n} match${n !== 1 ? 'es' : ''} played`;
-    document.getElementById('footer').textContent =
-      `Updated ${new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}`;
+    document.getElementById('header-meta').innerHTML =
+      `<span class="meta-stat"><span class="meta-count">${n}</span> match${n !== 1 ? 'es' : ''} played</span>`
+      + `<span class="meta-players">${PLAYERS.map(p => `<span>${p}</span>`).join('<span class="sep">·</span>')}</span>`;
+    const updated = new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
+    document.getElementById('footer').innerHTML =
+      `Updated ${updated}<span class="foot-copy">© ${new Date().getFullYear()} Vojtěch Indráček. All rights reserved.</span>`;
   }
 
   init();
