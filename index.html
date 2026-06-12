@@ -519,25 +519,22 @@
       const aw = h2h[a][b].wins, bw = h2h[b][a].wins;
       const at = h2h[a][b].ties;
       const as = h2h[a][b].setsWon, bs = h2h[b][a].setsWon;
+      const aWinClass = aw > bw ? 'win' : aw < bw ? 'loss' : '';
+      const bWinClass = bw > aw ? 'win' : bw < aw ? 'loss' : '';
       return `
         <div class="card h2h-card">
-          <div class="h2h-names">
-            <span class="h2h-name">${a}</span>
-            <span class="h2h-vs">vs</span>
-            <span class="h2h-name">${b}</span>
-          </div>
           <div class="h2h-wlt">
             <div class="h2h-wlt-item">
-              <span class="h2h-wlt-num win">${aw}</span>
-              <span class="h2h-wlt-label">W</span>
-            </div>
-            <div class="h2h-wlt-item">
-              <span class="h2h-wlt-num loss">${bw}</span>
-              <span class="h2h-wlt-label">L</span>
+              <span class="h2h-wlt-num ${aWinClass}">${aw}</span>
+              <span class="h2h-wlt-label">${a}</span>
             </div>
             <div class="h2h-wlt-item">
               <span class="h2h-wlt-num tie">${at}</span>
-              <span class="h2h-wlt-label">T</span>
+              <span class="h2h-wlt-label">Ties</span>
+            </div>
+            <div class="h2h-wlt-item">
+              <span class="h2h-wlt-num ${bWinClass}">${bw}</span>
+              <span class="h2h-wlt-label">${b}</span>
             </div>
           </div>
           <div class="h2h-sets">
