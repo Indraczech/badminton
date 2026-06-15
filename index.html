@@ -142,17 +142,24 @@
       background: repeating-linear-gradient(90deg, var(--border-strong) 0 7px, transparent 7px 14px);
     }
 
+    .season-select { position: relative; display: inline-block; margin-bottom: 24px; z-index: 40; }
     .eyebrow {
       display: inline-flex;
       align-items: center;
       gap: 8px;
+      font-family: var(--ff-body);
       font-size: 0.72rem;
       font-weight: 700;
       letter-spacing: 0.22em;
       text-transform: uppercase;
       color: var(--accent-text);
-      margin-bottom: 24px;
+      background: none;
+      border: none;
+      padding: 0;
+      cursor: pointer;
+      transition: opacity .15s;
     }
+    .eyebrow:hover { opacity: .75; }
     .eyebrow::before {
       content: "";
       width: 9px; height: 9px;
@@ -160,6 +167,47 @@
       background: var(--accent);
       box-shadow: 0 0 12px var(--accent);
     }
+    .eyebrow-caret { width: 12px; height: 12px; margin-left: -1px; transition: transform .2s ease; }
+    .eyebrow[aria-expanded="true"] .eyebrow-caret { transform: rotate(180deg); }
+
+    .season-menu {
+      position: absolute;
+      top: calc(100% + 10px);
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 50;
+      min-width: 180px;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      padding: 6px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      box-shadow: var(--shadow);
+    }
+    .season-menu[hidden] { display: none; }
+    .season-option {
+      appearance: none;
+      background: none;
+      border: none;
+      cursor: pointer;
+      width: 100%;
+      display: block;
+      text-align: left;
+      white-space: nowrap;
+      font-family: var(--ff-body);
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--muted);
+      padding: 12px 16px;
+      border-radius: 8px;
+      transition: background .15s, color .15s;
+    }
+    .season-option:hover { background: var(--surface-2); color: var(--text); }
+    .season-option.active { color: var(--accent-text); background: color-mix(in srgb, var(--accent) 12%, transparent); }
 
     .wordmark {
       font-family: var(--ff-display);
@@ -595,7 +643,13 @@
 <div class="wrap">
 
   <header>
-    <div class="eyebrow reveal">Season 2026</div>
+    <div class="season-select reveal" id="season-select">
+      <button class="eyebrow" id="season-trigger" aria-haspopup="listbox" aria-expanded="false">
+        <span id="season-label">Season 2026</span>
+        <svg class="eyebrow-caret" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+      </button>
+      <div class="season-menu" id="season-menu" role="listbox" hidden></div>
+    </div>
     <h1 class="wordmark reveal" style="animation-delay:80ms">Badminton<span class="dot"></span></h1>
     <p class="header-meta reveal" id="header-meta" style="animation-delay:170ms">Loading…</p>
   </header>
@@ -619,7 +673,7 @@
     </section>
 
     <section>
-      <div class="section-title">Wins this season</div>
+      <div class="section-title" id="chart-title">Wins this season</div>
       <div id="chart-section">
         <div class="skeleton" style="height:344px;border-radius:18px"></div>
       </div>
@@ -647,6 +701,9 @@
   let chartInstance = null;
   let lastStats = null;
   let lastMatches = null;
+  let allMatches = [];
+  let selectedYear = null;   // a year number, or 'all'
+  let globalLatestDay = null;
 
   /* ────────────────  THEME  ──────────────── */
   // Follow the device's light/dark setting, live
@@ -822,10 +879,8 @@
 
     if (!recent.length) return '<div class="placeholder">No matches recorded yet.</div>';
 
-    const latestDay = new Date(recent[0].date).toDateString();
-
     return recent.map((m, i) => {
-      const isNew = new Date(m.date).toDateString() === latestDay;
+      const isNew = new Date(m.date).toDateString() === globalLatestDay;
       const isTie = m.result === 'Tie';
       const p1won = m.result === m.player1;
       const p2won = m.result === m.player2;
@@ -882,12 +937,14 @@
 
     // Cumulative wins across the season, one point per match played
     const ordered = [...(matches || [])].sort((a, b) => new Date(a.date) - new Date(b.date));
+    const multiYear = new Set(ordered.map(m => new Date(m.date).getFullYear())).size > 1;
+    const labelFmt = multiYear ? { month: 'short', year: '2-digit' } : { day: 'numeric', month: 'short' };
     const running = Object.fromEntries(PLAYERS.map(p => [p, 0]));
     const labels = [];
     const series = Object.fromEntries(PLAYERS.map(p => [p, []]));
     ordered.forEach(m => {
       if (m.result && m.result !== 'Tie' && running[m.result] !== undefined) running[m.result]++;
-      labels.push(new Date(m.date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }));
+      labels.push(new Date(m.date).toLocaleDateString('en-GB', labelFmt));
       PLAYERS.forEach(p => series[p].push(running[p]));
     });
 
@@ -940,19 +997,54 @@
     });
   }
 
-  /* ────────────────  INIT  ──────────────── */
-  async function init() {
-    const matches = await fetchMatches();
+  /* ────────────────  SEASON SELECTOR  ──────────────── */
+  function buildSeasonMenu(years) {
+    const menu = document.getElementById('season-menu');
+    const opts = years.map(y => ({ value: String(y), label: `Season ${y}` }));
+    opts.push({ value: 'all', label: 'All Time' });
+    menu.innerHTML = opts.map(o =>
+      `<button class="season-option" role="option" data-value="${o.value}">${o.label}</button>`).join('');
+    menu.querySelectorAll('.season-option').forEach(btn => {
+      btn.addEventListener('click', () => {
+        selectedYear = btn.dataset.value === 'all' ? 'all' : Number(btn.dataset.value);
+        closeSeasonMenu();
+        applyYear();
+      });
+    });
+  }
 
-    if (!matches) {
-      document.getElementById('header-meta').textContent = 'Could not load data.';
-      document.getElementById('leaderboard').innerHTML = '<div class="placeholder">Could not load data.</div>';
-      document.getElementById('h2h').innerHTML = '<div class="card placeholder">Could not load data.</div>';
-      document.getElementById('results').innerHTML = '<div class="placeholder">Could not load data.</div>';
-      document.getElementById('chart-section').innerHTML = '<div class="placeholder">Could not load data.</div>';
-      return;
-    }
+  function openSeasonMenu()  { document.getElementById('season-menu').hidden = false; document.getElementById('season-trigger').setAttribute('aria-expanded', 'true'); }
+  function closeSeasonMenu() { document.getElementById('season-menu').hidden = true;  document.getElementById('season-trigger').setAttribute('aria-expanded', 'false'); }
 
+  function setupSeasonDropdown() {
+    const trigger = document.getElementById('season-trigger');
+    const menu = document.getElementById('season-menu');
+    trigger.addEventListener('click', e => {
+      e.stopPropagation();
+      menu.hidden ? openSeasonMenu() : closeSeasonMenu();
+    });
+    document.addEventListener('click', e => {
+      if (!document.getElementById('season-select').contains(e.target)) closeSeasonMenu();
+    });
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') closeSeasonMenu(); });
+  }
+
+  function applyYear() {
+    const allTime = selectedYear === 'all';
+    const matches = allTime
+      ? allMatches
+      : allMatches.filter(m => new Date(m.date).getFullYear() === selectedYear);
+
+    document.getElementById('season-label').textContent = allTime ? 'All Time' : `Season ${selectedYear}`;
+    document.getElementById('chart-title').textContent = allTime ? 'Wins all time' : 'Wins this season';
+    document.querySelectorAll('.season-option').forEach(b =>
+      b.classList.toggle('active', b.dataset.value === String(selectedYear)));
+
+    renderAll(matches, allTime);
+  }
+
+  /* ────────────────  RENDER  ──────────────── */
+  function renderAll(matches, allTime) {
     const { stats, h2h } = computeStats(matches);
     lastStats = stats;
     lastMatches = matches;
@@ -975,8 +1067,42 @@
 
     const n = matches.length;
     document.getElementById('header-meta').innerHTML =
-      `<span class="meta-stat"><span class="meta-count">${n}</span> match${n !== 1 ? 'es' : ''} played</span>`
+      `<span class="meta-stat"><span class="meta-count">${n}</span> match${n !== 1 ? 'es' : ''}${allTime ? ' · all-time' : ' played'}</span>`
       + `<span class="meta-players">${PLAYERS.map(p => `<span>${p}</span>`).join('<span class="sep">·</span>')}</span>`;
+  }
+
+  /* ────────────────  INIT  ──────────────── */
+  async function init() {
+    const fetched = await fetchMatches();
+
+    if (!fetched) {
+      document.getElementById('header-meta').textContent = 'Could not load data.';
+      document.getElementById('leaderboard').innerHTML = '<div class="placeholder">Could not load data.</div>';
+      document.getElementById('h2h').innerHTML = '<div class="placeholder">Could not load data.</div>';
+      document.getElementById('results').innerHTML = '<div class="placeholder">Could not load data.</div>';
+      document.getElementById('chart-section').innerHTML = '<div class="placeholder">Could not load data.</div>';
+      return;
+    }
+
+    allMatches = fetched.filter(m => m && m.date && !isNaN(new Date(m.date)));
+
+    if (!allMatches.length) {
+      document.getElementById('header-meta').textContent = 'No matches recorded yet.';
+      document.getElementById('leaderboard').innerHTML = '<div class="placeholder">No matches recorded yet.</div>';
+      document.getElementById('h2h').innerHTML = '<div class="placeholder">No matches recorded yet.</div>';
+      document.getElementById('results').innerHTML = '<div class="placeholder">No matches recorded yet.</div>';
+      document.getElementById('chart-section').innerHTML = '<div class="placeholder">No matches recorded yet.</div>';
+      return;
+    }
+
+    const years = [...new Set(allMatches.map(m => new Date(m.date).getFullYear()))].sort((a, b) => b - a);
+    selectedYear = years[0];
+    globalLatestDay = new Date([...allMatches].sort((a, b) => new Date(b.date) - new Date(a.date))[0].date).toDateString();
+
+    buildSeasonMenu(years);
+    setupSeasonDropdown();
+    applyYear();
+
     const updated = new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
     document.getElementById('footer').innerHTML =
       `Updated ${updated}<span class="foot-copy">© ${new Date().getFullYear()} Vojtěch Indráček. All rights reserved.</span>`;
