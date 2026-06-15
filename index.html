@@ -697,18 +697,6 @@
   const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyNr-1TSWNseq-s_5qNOKRcyQWAZQ4haLBkoRgodhWSZQQ-O793LqyyEM4n4UU0g9i5/exec';
   const PLAYERS = ['Vojta', 'Albi', 'Vítek'];
 
-  // ── DEV sample data — merged in only on localhost / file:// or with ?demo (never on the live site) ──
-  const SAMPLE_MATCHES = [
-    { date: '2024-02-11', player1: 'Vojta', player2: 'Albi',  result: 'Vojta', sets_won_p1: 2, sets_won_p2: 0, s1_p1: 21, s1_p2: 15, s2_p1: 21, s2_p2: 18 },
-    { date: '2024-05-19', player1: 'Albi',  player2: 'Vítek', result: 'Vítek', sets_won_p1: 1, sets_won_p2: 2, s1_p1: 21, s1_p2: 18, s2_p1: 14, s2_p2: 21, s3_p1: 19, s3_p2: 21 },
-    { date: '2024-09-07', player1: 'Vojta', player2: 'Vítek', result: 'Tie',   sets_won_p1: 1, sets_won_p2: 1, s1_p1: 21, s1_p2: 17, s2_p1: 16, s2_p2: 21 },
-    { date: '2024-11-23', player1: 'Vítek', player2: 'Albi',  result: 'Vítek', sets_won_p1: 2, sets_won_p2: 1, s1_p1: 21, s1_p2: 19, s2_p1: 18, s2_p2: 21, s3_p1: 21, s3_p2: 15 },
-    { date: '2025-01-18', player1: 'Albi',  player2: 'Vojta', result: 'Albi',  sets_won_p1: 2, sets_won_p2: 0, s1_p1: 21, s1_p2: 12, s2_p1: 21, s2_p2: 19 },
-    { date: '2025-04-12', player1: 'Vítek', player2: 'Vojta', result: 'Vojta', sets_won_p1: 0, sets_won_p2: 2, s1_p1: 15, s1_p2: 21, s2_p1: 18, s2_p2: 21 },
-    { date: '2025-06-28', player1: 'Vojta', player2: 'Albi',  result: 'Vojta', sets_won_p1: 2, sets_won_p2: 1, s1_p1: 21, s1_p2: 18, s2_p1: 19, s2_p2: 21, s3_p1: 21, s3_p2: 16 },
-    { date: '2025-10-05', player1: 'Albi',  player2: 'Vítek', result: 'Tie',   sets_won_p1: 1, sets_won_p2: 1, s1_p1: 21, s1_p2: 14, s2_p1: 17, s2_p2: 21 }
-  ];
-
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   let chartInstance = null;
   let lastStats = null;
@@ -1096,11 +1084,7 @@
       return;
     }
 
-    const demo = location.protocol === 'file:'
-      || ['localhost', '127.0.0.1', ''].includes(location.hostname)
-      || new URLSearchParams(location.search).has('demo');
-    allMatches = (demo ? [...SAMPLE_MATCHES, ...fetched] : fetched)
-      .filter(m => m && m.date && !isNaN(new Date(m.date)));
+    allMatches = fetched.filter(m => m && m.date && !isNaN(new Date(m.date)));
 
     if (!allMatches.length) {
       document.getElementById('header-meta').textContent = 'No matches recorded yet.';
